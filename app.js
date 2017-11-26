@@ -52,6 +52,19 @@ app.get('/', (req, res) => {
   });
 });
 
+// Get Single Articles
+app.get('/article/:id', function(req, res){
+  Article.findById(req.params.id, function(err, article){
+    if(err){
+      console.log(err);
+    } else {
+      res.render('article', {        
+        article: article
+      });
+    }
+  });
+});
+
 // Add Route
 app.get('/articles/add', function(req, res){
   res.render('add_article', {
