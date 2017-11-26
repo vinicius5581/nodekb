@@ -122,6 +122,16 @@ app.post('/articles/edit/:id', function(req, res){
   });
 });
 
+app.delete('/article/:id', function(req,res){
+  const query = {_id:req.params.id}
+  Article.remove(query, function(err){
+    if (err) {
+      console.log(err);
+    }
+    res.send('Success');
+  })
+});
+
 
 // Start Server
 app.listen(3000, function(){
