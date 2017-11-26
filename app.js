@@ -2,6 +2,9 @@ const express = require('express');
 const path = require('path');
 const mongoose = require('mongoose');
 const bodyParser = require('body-parser');
+const expressValidator = require('express-validator');
+const flash = require('connect-flash');
+const session = require('express-session');
 
 mongoose.connect('mongodb://localhost/nodekb');
 const db = mongoose.connection;
@@ -20,7 +23,6 @@ db.on('error', function(err){
 const app = express();
 
 // Bring in Models
-
 const Article = require('./models/article');
 
 // Load View Engine
@@ -38,7 +40,40 @@ app.use(bodyParser.json());
 // Set Public Folder
 app.use(express.static(path.join(__dirname, 'public')));
 
-// Home Route
+// Express Session Middleware
+app.use(session({
+  secret: 'brodog',
+  resave: true,
+  saveUnitialized: true
+}));
+
+// Express Messages Middleware
+app.use(require('connect-flash')());
+app.use(function(req, res, next) {
+  res.locals.messages = require('express-messages')(req, res);
+  next();
+});
+
+// Express Validator Middleware
+app.use(expressValidator({
+  errorFormatter: function(param, msg, value) {
+    var namespace = param.split('.'),
+        root = namespace.shift(),
+        formParam = root;
+
+    while (namespace.length) {
+      formParam += '[' + namespace.shift() + ']';
+    }
+    return {
+      param: formParam,
+      msg: msg,
+      value: value
+    };
+  }
+}));
+
+// ROUTES
+// Home View Route
 app.get('/', (req, res) => {
   const articles = Article.find({}, function(err, articles){
     if(err){
@@ -52,7 +87,7 @@ app.get('/', (req, res) => {
   });
 });
 
-// Get Single Articles
+// Get Article View Route
 app.get('/article/:id', function(req, res){
   Article.findById(req.params.id, function(err, article){
     if(err){
@@ -65,14 +100,14 @@ app.get('/article/:id', function(req, res){
   });
 });
 
-// Add Route
+// Add Article View Route
 app.get('/articles/add', function(req, res){
   res.render('add_article', {
     title: 'Add Article'
   });
 });
 
-// Add Submit POST Route
+// Add Article POST Route
 app.post('/articles/add', function(req, res){
   const article = new Article();
   article.title = req.body.title;
@@ -84,12 +119,13 @@ app.post('/articles/add', function(req, res){
         console.log(err);
         return;
       } else {
+        req.flash('success', 'Article Added');
         res.redirect('/');
       }
   });
 });
 
-// Load Edit Form
+// Update Article View Route
 app.get('/article/edit/:id', function(req, res){
   Article.findById(req.params.id, function(err, article){
     if(err){
@@ -103,7 +139,7 @@ app.get('/article/edit/:id', function(req, res){
   });
 });
 
-// Update Submit POST Route
+// Update Article POST Route
 app.post('/articles/edit/:id', function(req, res){
   const article = {};
   article.title = req.body.title;
@@ -122,6 +158,7 @@ app.post('/articles/edit/:id', function(req, res){
   });
 });
 
+// Delete Article Route
 app.delete('/article/:id', function(req,res){
   const query = {_id:req.params.id}
   Article.remove(query, function(err){

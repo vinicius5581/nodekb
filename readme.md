@@ -1,5 +1,5 @@
 ```
 $ npm i
-$ bower install boostrap
+$ bower i
 $ nodemon app.js
 ```
