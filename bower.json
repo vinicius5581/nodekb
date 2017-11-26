@@ -1,0 +1,21 @@
+{
+  "name": "nodekb",
+  "description": "",
+  "main": "index.js",
+  "authors": [
+    "Vinicius Santana <santanaviny@gmail.com>"
+  ],
+  "license": "ISC",
+  "homepage": "https://github.com/vinicius5581/nodekb",
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components",
+    "public/bower_components",
+    "test",
+    "tests"
+  ],
+  "dependencies": {
+    "bootstrap": "^3.3.7"
+  }
+}
