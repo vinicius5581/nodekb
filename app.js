@@ -8,6 +8,8 @@ const session = require('express-session');
 const passport = require('passport');
 const config = require('./config/database');
 
+const port = process.env.PORT || 3000;
+
 mongoose.connect(config.database);
 const db = mongoose.connection;
 
@@ -81,7 +83,6 @@ require('./config/passport')(passport);
 app.use(passport.initialize());
 app.use(passport.session());
 
-
 app.get('*', function(req, res, next){
   res.locals.user = req.user || null;
   next();
@@ -111,6 +112,6 @@ const users = require('./routes/users');
 app.use('/users', users);
 
 // Start Server
-app.listen(3000, function(){
-  console.log('Server started on port 3000...');
+app.listen(port, function(){
+  console.log('Server started on port '+ port +'...');
 });
