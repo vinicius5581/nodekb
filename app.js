@@ -30,6 +30,7 @@ const app = express();
 const Article = require('./models/article');
 
 // Load View Engine
+app.set('view options', { doctype: 'html' });
 app.set('views', path.join(__dirname, 'views'));
 app.set('view engine', 'pug');
 
