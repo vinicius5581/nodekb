@@ -36,7 +36,6 @@ app.use(bodyParser.urlencoded({ extended: false}));
 // parse application/json
 app.use(bodyParser.json());
 
-
 // Set Public Folder
 app.use(express.static(path.join(__dirname, 'public')));
 
@@ -109,20 +108,34 @@ app.get('/articles/add', function(req, res){
 
 // Add Article POST Route
 app.post('/articles/add', function(req, res){
-  const article = new Article();
-  article.title = req.body.title;
-  article.author = req.body.author;
-  article.body = req.body.body;
+  req.checkBody('title', 'Title is required').notEmpty();
+  req.checkBody('author', 'Author is required').notEmpty();
+  req.checkBody('body', 'Body is required').notEmpty();
 
-  article.save(function(err){
-      if(err){
-        console.log(err);
-        return;
-      } else {
-        req.flash('success', 'Article Added');
-        res.redirect('/');
-      }
-  });
+  // Get errors
+  const errors = req.validationErrors();
+
+  if (errors) {
+    res.render('add_article', {
+      title: 'Add Article',
+      errors:errors
+    });
+  } else {
+    const article = new Article();
+    article.title = req.body.title;
+    article.author = req.body.author;
+    article.body = req.body.body;
+
+    article.save(function(err){
+        if(err){
+          console.log(err);
+          return;
+        } else {
+          req.flash('success', 'Article Added');
+          res.redirect('/');
+        }
+    });
+  }
 });
 
 // Update Article View Route
@@ -153,6 +166,7 @@ app.post('/articles/edit/:id', function(req, res){
         console.log(err);
         return;
       } else {
+        req.flash('success', 'Article Updated')
         res.redirect('/');
       }
   });
