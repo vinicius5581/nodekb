@@ -1,6 +1,9 @@
 const express = require('express');
 const router = express.Router();
+
+// Models
 const Article = require('../models/article');
+const User = require('../models/user');
 
 // Add Article View Route
 router.get('/add', function(req, res){
@@ -12,7 +15,7 @@ router.get('/add', function(req, res){
 // Add Article POST Route
 router.post('/add', function(req, res){
   req.checkBody('title', 'Title is required').notEmpty();
-  req.checkBody('author', 'Author is required').notEmpty();
+  // req.checkBody('author', 'Author is required').notEmpty();
   req.checkBody('body', 'Body is required').notEmpty();
 
   // Get errors
@@ -26,7 +29,7 @@ router.post('/add', function(req, res){
   } else {
     const article = new Article();
     article.title = req.body.title;
-    article.author = req.body.author;
+    article.author = req.user._id;
     article.body = req.body.body;
 
     article.save(function(err){
@@ -87,15 +90,14 @@ router.delete('/:id', function(req,res){
 });
 
 // Get Article View Route
-router.get('/:id', function(req, res){
-  Article.findById(req.params.id, function(err, article){
-    if(err){
-      console.log(err);
-    } else {
+router.get('/:id', function(req, res) {
+  Article.findById(req.params.id, function(err, article) {
+    User.findById(article.author, function(err, user) {
       res.render('article', {
-        article: article
+        article: article,
+        author: user.name
       });
-    }
+    });
   });
 });
 
